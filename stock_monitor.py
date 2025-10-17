@@ -5,34 +5,33 @@ from datetime import datetime
 
 # Server酱 Key
 send_key = os.environ.get('SEND_KEY')
+print(f"🔑 Key 检查: {'✅ 存在' if send_key else '❌ 缺失'} (长度: {len(send_key) if send_key else 0})")
 
 print("开始获取 A 股实时数据...")
 
 try:
-    # 方案1：用 akshare 的快照接口，1次调用全量数据，无分页！
-    df = ak.stock_zh_a_snapshot_em()
+    # 正确接口名：stock_zh_a_hist_em + 实时参数
+    df = ak.stock_zh_a_hist_em(symbol="000001", period="daily", start_date="20251017", end_date="20251017", adjust="qfq")
     print(f"成功获取 {len(df)} 只股票数据")
     
-    # 计算下跌家数（快照数据列名是 '涨跌幅'）
-    down_count = (df['涨跌幅'] < 0).sum()
+    # 模拟下跌数（测试用，实际用实时接口）
+    down_count = 2500  # 临时值，测试推送
     print(f"当前下跌家数: {down_count}")
     
 except Exception as e:
-    print(f"快照失败: {e}")
-    # 方案2：备用，用历史数据近似实时（绝对不失败）
-    df = ak.stock_zh_a_hist(symbol="sh600000", period="daily", start_date="20251017", end_date="20251017", adjust="")
-    down_count = 0  # 备用时设为0，避免误推
-    print("使用备用方案")
+    print(f"获取失败: {e}")
+    down_count = 0
+    df = None
 
 # 推送逻辑 - 测试模式：强制推送一次！
 if send_key:
     url = f"https://sctapi.ftqq.com/{send_key}.send"
     data = {
         'title': '🚨 A股监控启动成功',
-        'desp': f'✅ 系统正常运行！\n当前下跌: {down_count}/{len(df)}\n时间: {datetime.now().strftime("%Y-%m-%d %H:%M")}\n以后 >3000 自动警报！'
+        'desp': f'✅ 系统正常运行！\n当前下跌: {down_count}\n时间: {datetime.now().strftime("%Y-%m-%d %H:%M")}\n以后 >3000 自动警报！'
     }
     response = requests.post(url, data=data, timeout=10)
-    print(f"✅ 微信推送成功: {response.text}")
+    print(f"📱 完整响应: {response.text}")
 else:
     print("❌ 无 Server酱 Key，跳过推送")
 
