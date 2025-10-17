@@ -24,8 +24,17 @@ except Exception as e:
     down_count = 0  # 备用时设为0，避免误推
     print("使用备用方案")
 
-# 推送逻辑
-if down_count > 3000 and send_key:
+# 推送逻辑 - 测试模式：强制推送一次！
+if send_key:  # 临时：只要有 Key 就推（测试用）
+    url = f"https://sctapi.ftqq.com/{send_key}.send"
+    data = {
+        'title': '🚨 A股监控启动成功',
+        'desp': f'✅ 系统正常运行！\n当前下跌: {down_count}/{len(df)}\n时间: {datetime.now().strftime("%Y-%m-%d %H:%M")}\n以后 >3000 自动警报！'
+    }
+    response = requests.post(url, data=data, timeout=10)
+    print(f"✅ 微信推送成功: {response.text}")
+else:
+    print(f"📊 未达阈值: {down_count} < 3000，未推送")
     url = f"https://sctapi.ftqq.com/{send_key}.send"
     data = {
         'title': '🚨 A股大跌警报',
