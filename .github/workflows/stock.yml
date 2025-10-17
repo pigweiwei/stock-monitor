@@ -1,0 +1,26 @@
+name: A股行情监控
+
+on:
+  schedule:
+    - cron: '*/5 1-7 * * 1-5'  # 北京时间，每5分钟运行一次（交易时间段：约9:00-15:00）
+  workflow_dispatch:  # 支持手动触发（可选）
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest  # 使用 Linux 环境
+
+    steps:
+    - uses: actions/checkout@v4  # 拉取仓库代码
+
+    - name: 设置 Python 环境
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: 安装依赖
+      run: pip install akshare requests
+
+    - name: 运行监控脚本
+      env:
+        SEND_KEY: ${{ secrets.SEND_KEY }}  # 从 Secrets 注入 Key
+      run: python stock_monitor.py
