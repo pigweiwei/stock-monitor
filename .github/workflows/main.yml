@@ -1,0 +1,26 @@
+name: Stock Alert
+
+on:
+  schedule:
+    - cron: '25 1 * * 1-5'  # 每个工作日北京时间早上9:25运行
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run alert script
+        env:
+          SERVER_SENDKEY: ${{ secrets.SERVER_SENDKEY }}
+        run: python stock_alert.py
