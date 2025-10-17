@@ -25,7 +25,7 @@ except Exception as e:
     print("使用备用方案")
 
 # 推送逻辑 - 测试模式：强制推送一次！
-if send_key:  # 临时：只要有 Key 就推（测试用）
+if send_key:
     url = f"https://sctapi.ftqq.com/{send_key}.send"
     data = {
         'title': '🚨 A股监控启动成功',
@@ -34,15 +34,6 @@ if send_key:  # 临时：只要有 Key 就推（测试用）
     response = requests.post(url, data=data, timeout=10)
     print(f"✅ 微信推送成功: {response.text}")
 else:
-    print(f"📊 未达阈值: {down_count} < 3000，未推送")
-    url = f"https://sctapi.ftqq.com/{send_key}.send"
-    data = {
-        'title': '🚨 A股大跌警报',
-        'desp': f'下跌家数: {down_count}/{len(df)}\n时间: {datetime.now().strftime("%Y-%m-%d %H:%M")}\n查看详情: https://quote.eastmoney.com/center/gridlist.html'
-    }
-    response = requests.post(url, data=data, timeout=10)
-    print(f"✅ 微信推送成功: {response.text}")
-else:
-    print(f"📊 未达阈值: {down_count} < 3000，未推送")
+    print("❌ 无 Server酱 Key，跳过推送")
 
 print("任务完成！")
