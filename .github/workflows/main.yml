@@ -2,8 +2,8 @@ name: Stock Alert
 
 on:
   schedule:
-    - cron: '0 2 * * 1-5'
-  workflow_dispatch:
+    - cron: '0 2 * * 1-5'  # 每天北京时间10:00执行
+  workflow_dispatch: {}     # ✅ 手动触发启用按钮
 
 jobs:
   run-alert:
